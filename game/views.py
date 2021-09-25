@@ -7,7 +7,14 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 class GamesViewSet(viewsets.ModelViewSet):
     serializer_class = GamesSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-    #authentication_classes = ()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        try:
+            context["creator"] = self.request.data["creator"]
+        except Exception as e:
+            pass    
+        return context
 
     def get_queryset(self):
         if self.request.query_params:

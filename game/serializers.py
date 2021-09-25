@@ -1,6 +1,7 @@
 from accounts.serializers import CustomUserSerializer
 from rest_framework.serializers import ModelSerializer
 from .models import Game, Result, Question, Answer
+from accounts.models import CustomUser
 
 class ResultsSerializer(ModelSerializer):
     class Meta:
@@ -31,6 +32,12 @@ class GamesSerializer(ModelSerializer):
     class Meta:
         model = Game
         fields = ["id", "name", "image", "description", "category", "creator", 'rating_count', 'rating_total']
+
+    def create(self, validated_data):
+        creatorObj = CustomUser.objects.get(pk=self.context['creator'])
+        game = Game.objects.create(creator=creatorObj, **validated_data)
+        return game
+
 
 class QuestionsSerializer(ModelSerializer):
     answers = AnswersSerializer(many=True)
