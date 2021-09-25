@@ -4,7 +4,7 @@ from rest_framework import viewsets
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-class GamesViewSet(viewsets.ModelViewSet):
+class GamesViewSet(viewsets.ModelViewSet):  
     serializer_class = GamesSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -32,6 +32,7 @@ class GamesViewSet(viewsets.ModelViewSet):
                 pass 
         else:
             queryset = Game.objects.all()
+            #queryset = Game.objects.filter(len(game.questions.all()) > 0)
         return queryset
 
 class QuestionsViewSet(viewsets.ModelViewSet):

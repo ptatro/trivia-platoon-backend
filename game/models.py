@@ -29,6 +29,8 @@ class Result(models.Model):
     score = models.IntegerField(default=0)
     rating = models.IntegerField(null=True, blank=True)
 
+    class Meta:
+        ordering=("-score",)
 
 class Answer(models.Model):
     question = models.ForeignKey(
