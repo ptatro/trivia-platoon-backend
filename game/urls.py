@@ -9,7 +9,9 @@ result_router = routers.NestedSimpleRouter(game_router, r"games", lookup="game")
 result_router.register(r"results", ResultsViewSet, basename="game-results")
 question_router = routers.NestedSimpleRouter(game_router, r"games", lookup="game")
 question_router.register(r"questions", QuestionsViewSet, basename="game-questions")
-answer_router = routers.NestedSimpleRouter(question_router, r"questions", lookup="question")
+answer_router = routers.NestedSimpleRouter(
+    question_router, r"questions", lookup="question"
+)
 answer_router.register(r"answers", AnswersViewSet, basename="question-answers")
 
 urlpatterns = [
