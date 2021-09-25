@@ -1,1 +1,1 @@
-web: gunicorn bcp-trivia.wsg
+web: gunicorn trivia.wsgi
