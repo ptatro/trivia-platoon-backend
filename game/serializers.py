@@ -20,6 +20,22 @@ class ResultsSerializer(ModelSerializer):
             pass
         return result
 
+    def update(self, instance, validated_data):
+        temp = instance.rating
+        print("temp: ", temp)
+        instance.score = validated_data.get('score', instance.score)
+        instance.rating = validated_data.get('rating', instance.rating)
+        instance.save()
+        game = instance.game
+        try:
+            if not temp:
+                print("here")
+                game.rating_count += 1
+                game.rating_total += instance.rating
+                game.save()
+        except:
+            pass
+        return instance
 
 class AnswersSerializer(ModelSerializer):
     class Meta:
