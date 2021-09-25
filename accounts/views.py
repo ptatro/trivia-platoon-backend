@@ -9,13 +9,13 @@ class SignupView(CreateAPIView):
     serializer_class = SignupSerializer
     permission_classes = [AllowAny]
     authentication_classes = ()
-    
+
     def perform_create(self, serializer):
         if serializer.is_valid():
             username = serializer.validated_data["username"]
             password = serializer.validated_data["password"]
             email = serializer.validated_data["email"]
 
-            CustomUser.objects.create_user(username=username, password=password, email=email)
-          
-
+            CustomUser.objects.create_user(
+                username=username, password=password, email=email
+            )

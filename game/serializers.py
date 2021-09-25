@@ -3,6 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from .models import Game, Result, Question, Answer
 from accounts.models import CustomUser
 
+
 class ResultsSerializer(ModelSerializer):
     class Meta:
         model = Result
@@ -11,8 +12,8 @@ class ResultsSerializer(ModelSerializer):
     def create(self, validated_data):
         game = Game.objects.get(pk=self.context["game_pk"])
         result = Result.objects.create(game=game, **validated_data)
-        try: 
-            if result.rating: 
+        try:
+            if result.rating:
                 game.rating_count += 1
                 game.rating_total += result.rating
                 game.save()
@@ -22,20 +23,19 @@ class ResultsSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
         temp = instance.rating
-        print("temp: ", temp)
-        instance.score = validated_data.get('score', instance.score)
-        instance.rating = validated_data.get('rating', instance.rating)
+        instance.score = validated_data.get("score", instance.score)
+        instance.rating = validated_data.get("rating", instance.rating)
         instance.save()
         game = instance.game
         try:
             if not temp:
-                print("here")
                 game.rating_count += 1
                 game.rating_total += instance.rating
                 game.save()
         except:
             pass
         return instance
+
 
 class AnswersSerializer(ModelSerializer):
     class Meta:
@@ -45,12 +45,22 @@ class AnswersSerializer(ModelSerializer):
 
 class GamesSerializer(ModelSerializer):
     creator = CustomUserSerializer(read_only=True)
+
     class Meta:
         model = Game
-        fields = ["id", "name", "image", "description", "category", "creator", 'rating_count', 'rating_total']
+        fields = [
+            "id",
+            "name",
+            "image",
+            "description",
+            "category",
+            "creator",
+            "rating_count",
+            "rating_total",
+        ]
 
     def create(self, validated_data):
-        creatorObj = CustomUser.objects.get(pk=self.context['creator'])
+        creatorObj = CustomUser.objects.get(pk=self.context["creator"])
         game = Game.objects.create(creator=creatorObj, **validated_data)
         return game
 
@@ -63,8 +73,7 @@ class QuestionsSerializer(ModelSerializer):
         fields = ["id", "questionText", "type", "answers"]
 
     def create(self, validated_data):
-        print(f"this is the validated data {validated_data}")
-        answers_data = validated_data.pop('answers')
+        answers_data = validated_data.pop("answers")
         game_pk = self.context["game_pk"]
         question = Question.objects.create(
             game=Game.objects.get(pk=game_pk), **validated_data
@@ -72,9 +81,11 @@ class QuestionsSerializer(ModelSerializer):
         for answer_data in answers_data:
             Answer.objects.create(question=question, **answer_data)
         return question
-        
+
     def update(self, instance, validated_data):
-        instance.questionText = validated_data.get('questionText', instance.questionText)
-        instance.type = validated_data.get('type', instance.type)
+        instance.questionText = validated_data.get(
+            "questionText", instance.questionText
+        )
+        instance.type = validated_data.get("type", instance.type)
         instance.save()
         return instance

@@ -2,17 +2,21 @@ from django.db import models
 from accounts.models import CustomUser
 import uuid
 
+
 def get_file_path(instance, filename):
-    ext = filename.split('.')[-1]
+    ext = filename.split(".")[-1]
     filename = "%s.%s" % (uuid.uuid4(), ext)
     return filename
 
+
 class Game(models.Model):
     name = models.CharField(max_length=255)
-    image = models.FileField(upload_to=get_file_path,default='imageNotAvailable.jpg')
+    image = models.FileField(upload_to=get_file_path, default="imageNotAvailable.jpg")
     description = models.TextField()
     category = models.CharField(max_length=255)
-    creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="games")
+    creator = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="games"
+    )
     rating_count = models.IntegerField(default=0)
     rating_total = models.IntegerField(default=0)
 
@@ -25,12 +29,15 @@ class Question(models.Model):
 
 class Result(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="results")
-    player = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="results")
+    player = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="results"
+    )
     score = models.IntegerField(default=0)
     rating = models.IntegerField(null=True, blank=True)
 
     class Meta:
-        ordering=("-score",)
+        ordering = ("-score",)
+
 
 class Answer(models.Model):
     question = models.ForeignKey(
