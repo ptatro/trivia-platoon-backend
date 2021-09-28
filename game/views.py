@@ -36,7 +36,10 @@ class GamesViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 pass
         else:
-            queryset = Game.objects.filter(questions__isnull=False)
+
+            #queryset = Game.objects.filter(questions__isnull=False)
+            #queryset = Game.objects.all()
+            queryset = Game.objects.exclude(questions__isnull=True)
         return queryset
 
 
