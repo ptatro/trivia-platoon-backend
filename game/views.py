@@ -35,13 +35,20 @@ class GamesViewSet(viewsets.ModelViewSet):
                     queryset = Game.objects.filter(creator=creator_name)
             except Exception as e:
                 pass
+            try:
+                if self.request.query_params["category"]:
+                    game_category = self.request.query_params["category"]
+                    queryset = Game.objects.filter(category=game_category)
+            except Exception as e:
+                pass
+            try:
+                if self.request.query_params["filtered"]:
+                    queryset = Game.objects.exclude(questions__isnull=True)
+            except Exception as e:
+                pass
         else:
-
-            #queryset = Game.objects.filter(questions__isnull=False)
-            #queryset = Game.objects.all()
-            queryset = Game.objects.exclude(questions__isnull=True)
+            queryset = Game.objects.all()
         return queryset
-
 
 class QuestionsViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionsSerializer
