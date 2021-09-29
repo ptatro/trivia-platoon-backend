@@ -1,6 +1,7 @@
 from django.db import models
 from accounts.models import CustomUser
 import uuid
+from django.db.models import F
 
 
 def get_file_path(instance, filename):
@@ -17,8 +18,11 @@ class Game(models.Model):
     creator = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="games"
     )
-    rating_count = models.IntegerField(default=0)
+    rating_count = models.IntegerField(default=-1)
     rating_total = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = (-F("rating_total")/F("rating_count"),)
 
 
 class Question(models.Model):

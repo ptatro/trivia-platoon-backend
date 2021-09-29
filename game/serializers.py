@@ -14,7 +14,10 @@ class ResultsSerializer(ModelSerializer):
         result = Result.objects.create(game=game, **validated_data)
         try:
             if result.rating:
-                game.rating_count += 1
+                if game.rating_count == -1:
+                    game.rating_count += 2
+                else:
+                    game.rating_count += 1
                 game.rating_total += result.rating
                 game.save()
         except:
@@ -29,9 +32,13 @@ class ResultsSerializer(ModelSerializer):
         game = instance.game
         try:
             if not temp:
-                game.rating_count += 1
+                if game.rating_count == -1:
+                    game.rating_count += 2
+                else: 
+                    game.rating_count += 1
                 game.rating_total += instance.rating
                 game.save()
+    
         except:
             pass
         return instance

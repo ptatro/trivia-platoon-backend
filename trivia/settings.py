@@ -231,7 +231,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-CORS_ALLOW_ALL_ORIGINS = True
+#CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'https://bcp-trivia-front.herokuapp.com',
+]
 CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
