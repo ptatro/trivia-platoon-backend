@@ -77,6 +77,10 @@ class ResultsViewSet(viewsets.ModelViewSet):
             context["game_pk"] = self.kwargs["game_pk"]
         except Exception as e:
             pass
+        try:
+            context["player"] = self.request.data["player"]
+        except Exception as e:
+            pass
         return context
 
 
