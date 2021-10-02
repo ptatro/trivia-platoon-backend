@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     "accounts",
     "rest_framework_swagger",
     "storages",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -150,7 +151,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "trivia.wsgi.application"
-
+ASGI_APPLICATION = "trivia.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

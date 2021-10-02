@@ -1,6 +1,6 @@
 from accounts.serializers import CustomUserSerializer
 from rest_framework.serializers import ModelSerializer
-from .models import Game, Result, Question, Answer
+from .models import Game, Result, Question, Answer, GameInstance
 from accounts.models import CustomUser
 
 
@@ -99,3 +99,9 @@ class QuestionsSerializer(ModelSerializer):
         instance.type = validated_data.get("type", instance.type)
         instance.save()
         return instance
+
+class GameInstanceSerializer(ModelSerializer):
+
+    class Meta:
+        model = GameInstance
+        fields = ["id", "MaxPlayers", "Status"]

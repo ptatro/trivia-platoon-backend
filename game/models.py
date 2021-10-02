@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import CustomUser
 import uuid
 from django.db.models import F
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 def get_file_path(instance, filename):
@@ -49,3 +50,8 @@ class Answer(models.Model):
     )
     text = models.CharField(max_length=255)
     correct = models.BooleanField()
+
+class GameInstance(models.Model):
+    MaxPlayers = models.IntegerField(validators=[MinValueValidator(2), MaxValueValidator(10)])
+    Status = models.CharField(max_length=25, default="lobby")
+    

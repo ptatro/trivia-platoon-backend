@@ -1,13 +1,17 @@
-from .models import Game, Question, Result, Answer
+from .models import Game, Question, Result, Answer, GameInstance
 from .serializers import (
     GamesSerializer,
     QuestionsSerializer,
     ResultsSerializer,
     AnswersSerializer,
+    GameInstanceSerializer,
 )
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import GamesCreatorOnlyCanChange, QuestionsCreatorOnlyCanChange, AnswersCreatorOnlyCanChange, ResultsCreatorOnlyCanChange
+from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+from djangochannelsrestframework.mixins import ListModelMixin
+from djangochannelsrestframework import permissions
 
 
 class GamesViewSet(viewsets.ModelViewSet):
@@ -93,3 +97,9 @@ class AnswersViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Answer.objects.filter(question=self.kwargs["question_pk"])
+
+
+class GameInstanceConsumer(ListModelMixin, GenericAsyncAPIConsumer):
+    queryset = GameInstance.objects.all()
+    serializer_class = GameInstanceSerializer
+    permission_classes = (permissions.IsAuthenticated,)
