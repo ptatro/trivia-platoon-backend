@@ -7,11 +7,12 @@ from .serializers import (
 )
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .permissions import GamesCreatorOnlyCanChange, QuestionsCreatorOnlyCanChange, AnswersCreatorOnlyCanChange, ResultsCreatorOnlyCanChange
 
 
 class GamesViewSet(viewsets.ModelViewSet):
     serializer_class = GamesSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, GamesCreatorOnlyCanChange]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -52,6 +53,7 @@ class GamesViewSet(viewsets.ModelViewSet):
 
 class QuestionsViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionsSerializer
+    permission_classes = [QuestionsCreatorOnlyCanChange]
 
     def get_queryset(self):
         return Question.objects.filter(game=self.kwargs["game_pk"])
@@ -67,6 +69,7 @@ class QuestionsViewSet(viewsets.ModelViewSet):
 
 class ResultsViewSet(viewsets.ModelViewSet):
     serializer_class = ResultsSerializer
+    permission_classes = [ResultsCreatorOnlyCanChange]
 
     def get_queryset(self):
         return Result.objects.filter(game=self.kwargs["game_pk"])
@@ -86,6 +89,7 @@ class ResultsViewSet(viewsets.ModelViewSet):
 
 class AnswersViewSet(viewsets.ModelViewSet):
     serializer_class = AnswersSerializer
+    permission_classes = [AnswersCreatorOnlyCanChange]
 
     def get_queryset(self):
         return Answer.objects.filter(question=self.kwargs["question_pk"])
