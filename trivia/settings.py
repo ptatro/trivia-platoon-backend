@@ -16,8 +16,6 @@ import os
 from datetime import timedelta
 import django_heroku
 
-# import boto3
-
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -28,9 +26,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
-
-# False if not in os.environ because of casting above
-DEBUG = env("DEBUG")
 
 # Raises Django's ImproperlyConfigured
 # exception if AWS_REGION not in os.environ
@@ -112,10 +107,10 @@ COLLECTFAST_CACHE = "collectfast"
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-^6hcpj4lhav^i7xy@+x&_63_%c3@i5xeb8@+e0-s=544#aum)#"
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = []
 
