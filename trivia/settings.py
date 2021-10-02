@@ -27,9 +27,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-# False if not in os.environ because of casting above
-DEBUG = env("DEBUG")
-
 # Raises Django's ImproperlyConfigured
 # exception if AWS_REGION not in os.environ
 AWS_REGION = env("AWS_REGION")
@@ -102,7 +99,7 @@ COLLECTFAST_CACHE = "collectfast"
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = []
 
