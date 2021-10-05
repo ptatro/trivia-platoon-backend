@@ -16,19 +16,18 @@ from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.conf.urls import url
 
-from .channelsmiddleware import TokenAuthMiddleware
-# from .channelsmiddlewaretoken import TokenAuthMiddlewareStack
-from .channelmiddlewareAsync import JwtAuthMiddlewareStack
-from game.views import FooConsumer, GameInstanceConsumer
+from .channelmiddleware import JwtAuthMiddlewareStack
+from game.views import FooConsumer, GameInstanceConsumer, TestConsumer
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "trivia.settings")
-
-# application = get_asgi_application()
 
 application = ProtocolTypeRouter({
     "websocket": JwtAuthMiddlewareStack(
         URLRouter([
-            url(r"^websocket", view_as_consumer(GameInstanceConsumer)),
+            url(r"^listGameInstances", view_as_consumer(GameInstanceConsumer)),
+            url(r"^list", GameInstanceConsumer.as_asgi()),
+            url(r"^subscribeGameInstances", view_as_consumer(TestConsumer)),
+            url(r"^test", TestConsumer.as_asgi()),
             url(r"^user", view_as_consumer(FooConsumer)),
         ])
     ),

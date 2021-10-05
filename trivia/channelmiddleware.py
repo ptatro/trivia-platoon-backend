@@ -6,7 +6,6 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 
-# from rest_framework_simplejwt.state import User
 from accounts.models import CustomUser
 
 from channels.middleware import BaseMiddleware
