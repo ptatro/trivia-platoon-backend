@@ -13,6 +13,8 @@ from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.mixins import ListModelMixin
 from djangochannelsrestframework import permissions
 
+from channels.generic.websocket import AsyncWebsocketConsumer
+
 
 class GamesViewSet(viewsets.ModelViewSet):
     serializer_class = GamesSerializer
@@ -103,3 +105,9 @@ class GameInstanceConsumer(ListModelMixin, GenericAsyncAPIConsumer):
     queryset = GameInstance.objects.all()
     serializer_class = GameInstanceSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+class FooConsumer(AsyncWebsocketConsumer):
+    async def websocket_connect(self, event):
+        user = self.scope["user"]
+        await self.accept()
