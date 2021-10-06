@@ -2,6 +2,8 @@ from accounts.serializers import CustomUserSerializer
 from rest_framework.serializers import ModelSerializer
 from .models import Game, Result, Question, Answer, GameInstance
 from accounts.models import CustomUser
+from django.db import transaction
+from haikunator import Haikunator
 
 
 class ResultsSerializer(ModelSerializer):
@@ -100,8 +102,30 @@ class QuestionsSerializer(ModelSerializer):
         instance.save()
         return instance
 
+'''
+Multiplayer Addition
+'''
+
 class GameInstanceSerializer(ModelSerializer):
 
     class Meta:
         model = GameInstance
-        fields = ["id", "MaxPlayers", "Status"]
+        fields = ["maxplayers", "status", "slug", "player", "creator", "game", "questiontimer" ]
+        read_only_fields = ['slug']
+        extra_kwargs = {'player': {'required': False}}
+
+    def create(self, validated_data):
+        players_data = validated_data.pop("player")
+        # print(players_data[0])
+        # player = CustomUser.objects.get(pk=1)
+        new_gameinstance = None
+        while not new_gameinstance:
+            with transaction.atomic():
+                slug = Haikunator.haikunate()
+                if GameInstance.objects.filter(slug=slug).exists():
+                    continue
+                new_gameinstance = GameInstance.objects.create(slug=slug,  **validated_data)
+                new_gameinstance.player.add(players_data[0])
+                new_gameinstance.save()
+
+        return new_gameinstance

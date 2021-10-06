@@ -8,23 +8,45 @@ from .serializers import GameInstanceSerializer
 # from trivia.channelpermissions import CustomChannel
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-
+from channels.consumer import SyncConsumer
+import json
 
 # class GameInstanceConsumer(ListModelMixin, GenericAsyncAPIConsumer):
 #     queryset = GameInstance.objects.all()
 #     serializer_class = GameInstanceSerializer
 #     permission_classes = (CustomChannel)
 
-# class TestConsumer(ObserverModelInstanceMixin, GenericAsyncAPIConsumer):
-#     queryset = GameInstance.objects.all()
-#     serializer_class = GameInstanceSerializer
-#     permission_classes = (CustomChannel)
+class EchoConsumer(SyncConsumer):
+
+    #client first connects
+    def websocket_connect(self, event):
+        
+        self.send({
+            "type": "websocket.accept",
+        })
+
+    #Server recieves message and replies
+    def websocket_receive(self, event):
+        # Access the body of the message from client with event["text"]
+        # print(event["text"])
+        
+        # Example of turning json into a string to send to clien
+        data = json.dumps({"keyname": "game is ready", "secondKey": "secret"})
+
+        self.send({
+            "type": "websocket.send",
+            
+            # this is the text returned and displayed to client
+            # for json we'd need to turn it into a string
+            # "text": data
+            "text": event["text"]
+        })
 
 
 class FooConsumer(AsyncWebsocketConsumer):
     async def websocket_connect(self, event):
         user = self.scope["user"]
         await self.accept()
-        print("Testing User", user)
-        print("User properties", dir(user))
-        print("User auth status", user.is_authenticated)
+        # print("Testing User", user)
+        # print("User properties", dir(user))
+        # print("User auth status", user.is_authenticated)

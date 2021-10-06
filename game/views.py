@@ -1,9 +1,10 @@
-from .models import Game, Question, Result, Answer
+from .models import Game, Question, Result, Answer, GameInstance
 from .serializers import (
     GamesSerializer,
     QuestionsSerializer,
     ResultsSerializer,
     AnswersSerializer,
+    GameInstanceSerializer
 )
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -93,6 +94,14 @@ class AnswersViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Answer.objects.filter(question=self.kwargs["question_pk"])
+
+'''
+Multiplayer Addition
+'''
+
+class GameInstanceViewSet(viewsets.ModelViewSet):
+    serializer_class = GameInstanceSerializer
+    queryset = GameInstance.objects.all()
 
 
 

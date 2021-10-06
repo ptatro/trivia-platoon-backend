@@ -5,6 +5,7 @@ from django.db.models import F
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
+
 def get_file_path(instance, filename):
     ext = filename.split(".")[-1]
     filename = "%s.%s" % (uuid.uuid4(), ext)
@@ -52,6 +53,14 @@ class Answer(models.Model):
     correct = models.BooleanField()
 
 class GameInstance(models.Model):
-    MaxPlayers = models.IntegerField(validators=[MinValueValidator(2), MaxValueValidator(10)])
-    Status = models.CharField(max_length=25, default="lobby")
+    
+    maxplayers = models.IntegerField(validators=[MinValueValidator(2), MaxValueValidator(10)])
+    status = models.CharField(max_length=25, default="lobby")
+    slug = models.SlugField(unique=True)
+    player = models.ManyToManyField(CustomUser, related_name="gameinstances")
+    creator = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="gamesinstances"
+    )
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="gameinstances")
+    questiontimer = models.IntegerField(default=15)
     
