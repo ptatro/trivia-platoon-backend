@@ -11,7 +11,7 @@ class ResultsSerializer(ModelSerializer):
 
     class Meta:
         model = Result
-        fields = ["id", "score", "rating", "player"]
+        fields = ["id", "score", "rating", "player", "gameinstance"]
 
     def create(self, validated_data):
         game = Game.objects.get(pk=self.context["game_pk"])

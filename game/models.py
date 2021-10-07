@@ -33,18 +33,6 @@ class Question(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="questions")
 
 
-class Result(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="results")
-    player = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name="results"
-    )
-    score = models.IntegerField(default=0)
-    rating = models.IntegerField(null=True, blank=True)
-
-    class Meta:
-        ordering = ("-score",)
-
-
 class Answer(models.Model):
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name="answers"
@@ -63,4 +51,16 @@ class GameInstance(models.Model):
     )
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="gameinstances")
     questiontimer = models.IntegerField(default=15)
+
+class Result(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="results")
+    player = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="results"
+    )
+    score = models.IntegerField(default=0)
+    rating = models.IntegerField(null=True, blank=True)
+    gameinstance = models.ForeignKey(GameInstance, on_delete=models.CASCADE, related_name="results", null=True, blank=True)
+
+    class Meta:
+        ordering = ("-score",)
     
