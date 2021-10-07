@@ -4,6 +4,7 @@ from channels.consumer import SyncConsumer
 import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from accounts.models import CustomUser
 
 """
 Example Test Consumer
@@ -43,8 +44,27 @@ class GameInstanceConsumer(SyncConsumer):
     #client first connects
     def websocket_connect(self, event):
         
+        # Can pass values in the headers but need to decode to string from bytes
+        headers = self.scope["headers"]
+        # print(headers[4][1].decode('UTF-8'))
+        # Get the player ID and create an instance of user to put into player field
+        playerID = headers[4][1].decode('UTF-8')
+        newplayer = CustomUser.objects.get(pk=playerID)
+        # print(newplayer)
+
+        # Get the slug from the ws URL path
         prefix, slug = self.scope["path"].strip('/').split('/')
+        # Get the game instance and player count using the slug
         gameinstance = GameInstance.objects.get(slug=slug)
+        gameinstance.player.add(newplayer)
+        playercount = len(gameinstance.player.all())
+
+        # If the playercount equals max players tell client to start else tell client to wait
+        # Setting a variable to handle this message trigger within consumer and not model
+        if (playercount == gameinstance.maxplayers):
+            message_trigger = "start"
+        else:
+            message_trigger = "wait"
 
         channel_layer = get_channel_layer()
         async_to_sync(self.channel_layer.group_add)(slug, self.channel_name)
@@ -52,7 +72,14 @@ class GameInstanceConsumer(SyncConsumer):
         async_to_sync(channel_layer.group_send)(slug, 
             {
                 "type": "chat.message",
-                "text": "Hello there!",
+                "text": {
+                    "maxplayers" : gameinstance.maxplayers, "status" : gameinstance.status,
+                    "playercount" : playercount, 
+                    "slug" : gameinstance.slug,
+                    "game" : gameinstance.game.id,
+                    "questiontimer" : gameinstance.questiontimer,
+                    "message_trigger" : message_trigger
+                    },
             })
         self.send({
             "type": "websocket.accept",
@@ -61,7 +88,7 @@ class GameInstanceConsumer(SyncConsumer):
     # Method to handle messages and send text to clients
     def chat_message(self, event):
         
-        data = json.dumps({"Testing": event["text"]})
+        data = json.dumps(event["text"])
         self.send(
             {
                 "type": "websocket.send",

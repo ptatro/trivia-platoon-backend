@@ -110,12 +110,14 @@ class GameInstanceSerializer(ModelSerializer):
 
     class Meta:
         model = GameInstance
-        fields = ["maxplayers", "status", "slug", "player", "creator", "game", "questiontimer" ]
+        fields = ["id", "maxplayers", "status", "slug", "player", "creator", "game", "questiontimer" ]
         read_only_fields = ['slug']
         extra_kwargs = {'player': {'required': False}}
 
     def create(self, validated_data):
-        players_data = validated_data.pop("player")
+
+        # Commented out adding the player on create due to adding players on connection in the consumer
+        # players_data = validated_data.pop("player")
         new_gameinstance = None
         while not new_gameinstance:
             with transaction.atomic():
@@ -123,7 +125,7 @@ class GameInstanceSerializer(ModelSerializer):
                 if GameInstance.objects.filter(slug=slug).exists():
                     continue
                 new_gameinstance = GameInstance.objects.create(slug=slug,  **validated_data)
-                new_gameinstance.player.add(players_data[0])
-                new_gameinstance.save()
+                # new_gameinstance.player.add(players_data[0])
+                # new_gameinstance.save()
 
         return new_gameinstance
