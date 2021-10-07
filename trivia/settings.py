@@ -243,15 +243,27 @@ SIMPLE_JWT = {
     "TOKEN_TYPE_CLAIM": "token_type",
 }
 
+"""
+Turn this on for production
+"""
+
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("127.0.0.1", 6379)],
+#         },
+#         # "ROUTING": "chat.routing.channel_routing",
+#     },
+# }
+"""
+Turn on for testing
+"""
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        }
-        # "ROUTING": "chat.routing.channel_routing",
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
-
 
 django_heroku.settings(locals())

@@ -116,8 +116,6 @@ class GameInstanceSerializer(ModelSerializer):
 
     def create(self, validated_data):
         players_data = validated_data.pop("player")
-        # print(players_data[0])
-        # player = CustomUser.objects.get(pk=1)
         new_gameinstance = None
         while not new_gameinstance:
             with transaction.atomic():

@@ -26,7 +26,6 @@ def get_user(validated_token):
         return AnonymousUser()
 
 
-
 class JwtAuthMiddleware(BaseMiddleware):
     def __init__(self, inner):
         self.inner = inner
@@ -49,7 +48,7 @@ class JwtAuthMiddleware(BaseMiddleware):
         else:
             #  Then token is valid, decode it
             decoded_data = jwt_decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-            print(decoded_data)
+            # print(decoded_data)
             # Will return a dictionary like -
             # {
             #     "token_type": "access",
