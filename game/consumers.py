@@ -47,11 +47,13 @@ class GameInstanceConsumer(SyncConsumer):
         
         # Can pass values in the headers but need to decode to string from bytes
         headers = self.scope["headers"]
-        # print(headers[4][1].decode('UTF-8'))
         # Get the player ID and create an instance of user to put into player field
-        playerID = headers[4][1].decode('UTF-8')
+        
+        for header in headers:
+            if header[0].decode('UTF-8') == 'player':
+                playerID = (header[1].decode('UTF-8'))
+        
         newplayer = CustomUser.objects.get(pk=playerID)
-        # print(newplayer)
 
         # Get the slug from the ws URL path
         prefix, slug = self.scope["path"].strip('/').split('/')
@@ -64,6 +66,8 @@ class GameInstanceConsumer(SyncConsumer):
         # Setting a variable to handle this message trigger within consumer and not model
         if (playercount == gameinstance.maxplayers):
             lobby = "full"
+            gameinstance.status="full"
+            gameinstance.save()
         else:
             lobby = f"{playercount} of {gameinstance.maxplayers}"
 
@@ -103,26 +107,29 @@ class GameInstanceConsumer(SyncConsumer):
 
         # Get playerID, slug, player instance, game instance, score and create results
         headers = self.scope["headers"]
-        playerID = headers[4][1].decode('UTF-8')
+        
+        for header in headers:
+            if header[0].decode('UTF-8') == 'player':
+                playerID = (header[1].decode('UTF-8'))
+        
         player = CustomUser.objects.get(pk=playerID)
         prefix, slug = self.scope["path"].strip('/').split('/')
         messagebody = json.loads(event["text"])
         results_list = []
+        gameinstance = GameInstance.objects.get(slug=slug)
+        game = Game.objects.get(pk=gameinstance.game.id)
 
-        # print("creator type", type(messagebody["creator_start"]))
         # Handle Creator Start Message
         try:
             if messagebody["creator_start"]:
-                print("Evaluated to true", messagebody["creator_start"])
                 message_trigger = "start"
+                gameinstance.status = "in_progress"
+                gameinstance.save()
         except Exception as e:
-            print("Exception in creator start if statement", e)
+            pass
         try:
             if messagebody["score"]: 
                 # Handle Results Submitted
-                gameinstance = GameInstance.objects.get(slug=slug)
-                game = Game.objects.get(pk=gameinstance.game.id)
-                
                 Result.objects.create(game=game, player=player, score=messagebody["score"], gameinstance=gameinstance)
                 resultcount = len(gameinstance.results.all())
 
@@ -131,13 +138,15 @@ class GameInstanceConsumer(SyncConsumer):
                 
                 if (resultcount == gameinstance.maxplayers):
                     message_trigger = "complete"
+                    gameinstance.status = "done"
+                    gameinstance.save()
                     all_results = gameinstance.results.all()
                     for result in all_results:
                         results_list.append(model_to_dict(result))
                 else:
                     message_trigger = "waiting for other players"
         except Exception as e:
-            print("Exception in score if statement", e)
+            pass
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(slug, 
@@ -164,5 +173,4 @@ class FooConsumer(AsyncWebsocketConsumer):
         user = self.scope["user"]
         await self.accept()
         print("Testing User", user)
-        # print("User properties", dir(user))
         print("User auth status", user.is_authenticated)
