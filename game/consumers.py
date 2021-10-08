@@ -6,6 +6,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from accounts.models import CustomUser
 from django.forms.models import model_to_dict
+from urllib.parse import parse_qs
 
 """
 Example Test Consumer with Notes
@@ -45,14 +46,8 @@ class GameInstanceConsumer(SyncConsumer):
     #client first connects
     def websocket_connect(self, event):
         
-        # Can pass values in the headers but need to decode to string from bytes
-        headers = self.scope["headers"]
         # Get the player ID and create an instance of user to put into player field
-        
-        for header in headers:
-            if header[0].decode('UTF-8') == 'player':
-                playerID = (header[1].decode('UTF-8'))
-        
+        playerID = parse_qs(self.scope["query_string"].decode("utf8"))["player"][0]
         newplayer = CustomUser.objects.get(pk=playerID)
 
         # Get the slug from the ws URL path
@@ -106,12 +101,7 @@ class GameInstanceConsumer(SyncConsumer):
     def websocket_receive(self, event):
 
         # Get playerID, slug, player instance, game instance, score and create results
-        headers = self.scope["headers"]
-        
-        for header in headers:
-            if header[0].decode('UTF-8') == 'player':
-                playerID = (header[1].decode('UTF-8'))
-        
+        playerID = parse_qs(self.scope["query_string"].decode("utf8"))["player"][0]
         player = CustomUser.objects.get(pk=playerID)
         prefix, slug = self.scope["path"].strip('/').split('/')
         messagebody = json.loads(event["text"])
