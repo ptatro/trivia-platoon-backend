@@ -63,9 +63,9 @@ class GameInstanceConsumer(SyncConsumer):
         # If the playercount equals max players tell client to start else tell client to wait
         # Setting a variable to handle this message trigger within consumer and not model
         if (playercount == gameinstance.maxplayers):
-            message_trigger = "start"
+            lobby = "full"
         else:
-            message_trigger = "wait"
+            lobby = f"{playercount} of {gameinstance.maxplayers}"
 
         channel_layer = get_channel_layer()
         async_to_sync(self.channel_layer.group_add)(slug, self.channel_name)
@@ -80,7 +80,7 @@ class GameInstanceConsumer(SyncConsumer):
                     "slug" : gameinstance.slug,
                     "game" : gameinstance.game.id,
                     "questiontimer" : gameinstance.questiontimer,
-                    "message_trigger" : message_trigger
+                    "lobby" : lobby
                     },
             })
         self.send({
@@ -106,29 +106,45 @@ class GameInstanceConsumer(SyncConsumer):
         playerID = headers[4][1].decode('UTF-8')
         player = CustomUser.objects.get(pk=playerID)
         prefix, slug = self.scope["path"].strip('/').split('/')
-        gameinstance = GameInstance.objects.get(slug=slug)
-        game = Game.objects.get(pk=gameinstance.game.id)
         messagebody = json.loads(event["text"])
-        Result.objects.create(game=game, player=player, score=messagebody["score"], gameinstance=gameinstance)
-        resultcount = len(gameinstance.results.all())
-
-        # If the resultcount equals max players send all results back else return waiting on other players
-        # Setting a variable to handle this message trigger within consumer and not model
         results_list = []
-        if (resultcount == gameinstance.maxplayers):
-            message_trigger = "complete"
-            all_results = gameinstance.results.all()
-            for result in all_results:
-                results_list.append(model_to_dict(result))
-        else:
-            message_trigger = "waiting for other players"
+
+        # print("creator type", type(messagebody["creator_start"]))
+        # Handle Creator Start Message
+        try:
+            if messagebody["creator_start"]:
+                print("Evaluated to true", messagebody["creator_start"])
+                message_trigger = "start"
+        except Exception as e:
+            print("Exception in creator start if statement", e)
+        try:
+            if messagebody["score"]: 
+                # Handle Results Submitted
+                gameinstance = GameInstance.objects.get(slug=slug)
+                game = Game.objects.get(pk=gameinstance.game.id)
+                
+                Result.objects.create(game=game, player=player, score=messagebody["score"], gameinstance=gameinstance)
+                resultcount = len(gameinstance.results.all())
+
+                # If the resultcount equals max players send all results back else return waiting on other players
+                # Setting a variable to handle this message trigger within consumer and not model
+                
+                if (resultcount == gameinstance.maxplayers):
+                    message_trigger = "complete"
+                    all_results = gameinstance.results.all()
+                    for result in all_results:
+                        results_list.append(model_to_dict(result))
+                else:
+                    message_trigger = "waiting for other players"
+        except Exception as e:
+            print("Exception in score if statement", e)
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(slug, 
             {
                 "type": "chat.message",
                 "text": {
-                    "Group Message" : "Congrats the Game is Complete",
+                    "Group Message" : "This went to group",
                     "message_trigger" : message_trigger,
                     "all_results" : results_list
                     },
@@ -136,7 +152,7 @@ class GameInstanceConsumer(SyncConsumer):
 
         self.send({
             "type": "websocket.send",
-            "text": "results received"
+            "text": "message received"
         })
 
 """
