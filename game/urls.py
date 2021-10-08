@@ -20,11 +20,11 @@ Multiplayer addition
 gameinstance_router = routers.SimpleRouter()
 gameinstance_router.register(r"gameinstances", GameInstanceViewSet, basename="gameinstances")
 
-
 urlpatterns = [
     url(r"^", include(game_router.urls)),
     url(r"^", include(result_router.urls)),
     url(r"^", include(question_router.urls)),
     url(r"^", include(answer_router.urls)),
     url(r"^", include(gameinstance_router.urls)),
+    url(r"^lobby/(?P<slug>[-\w]+)/$", GameInstanceViewSet.as_view({'get': 'retrieve'}, lookup_field='slug')),
 ]
