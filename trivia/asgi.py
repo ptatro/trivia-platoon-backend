@@ -17,7 +17,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from django.conf.urls import url
 
 from .channelmiddleware import JwtAuthMiddlewareStack
-from game.consumers import FooConsumer, EchoConsumer, GameInstanceConsumer
+from game.consumers import FooConsumer, EchoConsumer, GameInstanceConsumer, ChatConsumer
 
 
 
@@ -29,7 +29,8 @@ application = ProtocolTypeRouter({
         URLRouter([
             url(r"^user", FooConsumer.as_asgi()),
             url(r"^echo", EchoConsumer.as_asgi()),
-            url(r"^gameinstance", GameInstanceConsumer.as_asgi())
+            url(r"^gameinstance", GameInstanceConsumer.as_asgi()),
+            url(r"^chat", ChatConsumer.as_asgi())
         ])
     ),
  })
