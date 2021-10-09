@@ -247,35 +247,33 @@ SIMPLE_JWT = {
 Turn this on for production
 """
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": ['127.0.0.1:6379'],
-#         },
-#         # "ROUTING": "chat.routing.channel_routing",
-#     },
-#}
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ['REDIS_URL'],],
+        },
+        # "ROUTING": "chat.routing.channel_routing",
+    },
+}
 
-#6379'redis://localhost:{$PORT}'
+#6379'redis://localhost:{$PORT}'("127.0.0.1", 6379)
 
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": {
-#             "hosts": [("127.0.0.1", 6379)],
-#         },
-#         "OPTIONS": "django-redis.client.DefaultClient"
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": [os.environ['REDIS_URL']],
+        "OPTIONS": "django-redis.client.DefaultClient"
+    }
+}
 """
 Turn on for testing
 """
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels.layers.InMemoryChannelLayer"
+#     }
+# }
 
 django_heroku.settings(locals())
