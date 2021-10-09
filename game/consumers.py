@@ -1,3 +1,4 @@
+from django.db import connection
 from .models import GameInstance, Result, Game
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
@@ -14,8 +15,7 @@ Example Test Consumer with Notes
 class EchoConsumer(SyncConsumer):
 
     #client first connects
-    def websocket_connect(self, event):
-        
+    def websocket_connect(self, event):  
         self.send({
             "type": "websocket.accept",
         })
@@ -43,6 +43,37 @@ Game Instance Consumer Working with Group Message on Connect
 
 class GameInstanceConsumer(SyncConsumer):
 
+    def websocket_disconnect(self, event):
+        # Get the player ID and create an instance of user to put into player field
+        playerID = parse_qs(self.scope["query_string"].decode("utf8"))["player"][0]
+        player = CustomUser.objects.get(pk=playerID)
+        # Get the slug from the ws URL path
+        prefix, slug = self.scope["path"].strip('/').split('/')
+        # Get the game instance and player count using the slug
+        gameinstance = GameInstance.objects.get(slug=slug)
+        gameinstance.player.remove(player)
+        playercount = len(gameinstance.player.all())
+        lobby = f"{playercount} of {gameinstance.maxplayers}"
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(slug, 
+            {
+                "type": "chat.message",
+                "text": {
+                    "maxplayers" : gameinstance.maxplayers, 
+                    "status" : gameinstance.status,
+                    "playercount" : playercount, 
+                    "slug" : gameinstance.slug,
+                    "game" : gameinstance.game.id,
+                    "questiontimer" : gameinstance.questiontimer,
+                    "lobby" : lobby
+                    },
+            })
+        # self.send({
+        #         "type": "websocket.close",
+        #     })
+        return
+
+
     #client first connects
     def websocket_connect(self, event):
         
@@ -54,7 +85,21 @@ class GameInstanceConsumer(SyncConsumer):
         prefix, slug = self.scope["path"].strip('/').split('/')
         # Get the game instance and player count using the slug
         gameinstance = GameInstance.objects.get(slug=slug)
-        gameinstance.player.add(newplayer)
+        if (gameinstance.status == "lobby"):
+            #print("we are in the lobby")
+            gameinstance.player.add(newplayer)
+            connectionstatus = "connected"
+        else: 
+            #print("we are not in the lobby - the game is full")
+            connectionstatus = "game is full"
+            self.send({
+                "type": "websocket.accept",
+            })
+            self.send({
+                "type": "websocket.send",
+                "text": connectionstatus
+            })
+            return
         playercount = len(gameinstance.player.all())
 
         # If the playercount equals max players tell client to start else tell client to wait
@@ -83,8 +128,12 @@ class GameInstanceConsumer(SyncConsumer):
                     },
             })
         self.send({
-            "type": "websocket.accept",
-        })
+                "type": "websocket.accept",
+            })
+        self.send({
+                "type": "websocket.send",
+                "text": connectionstatus
+            })
 
     # Method to handle messages and send text to clients
     def chat_message(self, event):
