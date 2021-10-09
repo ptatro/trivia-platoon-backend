@@ -247,23 +247,33 @@ SIMPLE_JWT = {
 Turn this on for production
 """
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("127.0.0.1", 6379)],
-#         },
-#         # "ROUTING": "chat.routing.channel_routing",
-#     },
-# }
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+        # "ROUTING": "chat.routing.channel_routing",
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+        "OPTIONS": "django-redis.client.DefaultClient"
+    }
+}
 """
 Turn on for testing
 """
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels.layers.InMemoryChannelLayer"
+#     }
+# }
 
 django_heroku.settings(locals())
