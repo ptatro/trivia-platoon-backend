@@ -252,7 +252,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("18.208.60.216", 6379)],
+            "hosts": [("https://bcp-trivia.herokuapp.com/", 6379)],
         },
         # "ROUTING": "chat.routing.channel_routing",
     },
