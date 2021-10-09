@@ -251,7 +251,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
+            "hosts": ["redis://localhost:6379"],
         },
         # "ROUTING": "chat.routing.channel_routing",
     },
@@ -261,7 +261,7 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": {
-            "hosts": [("redis", 6379)],
+            "hosts": ["redis://localhost:6379"],
         },
         "OPTIONS": "django-redis.client.DefaultClient"
     }
