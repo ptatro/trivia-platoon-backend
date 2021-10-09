@@ -101,11 +101,12 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = ['bcp-trivia.herokuapp.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['.herokuapp.com','127.0.0.1']
 
 # Application definition
 
 INSTALLED_APPS = [
+    # 'redis_cache'
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -251,21 +252,21 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.environ['REDIS_URL'],],
+            "hosts": [("localhost", 6379)],
         },
         # "ROUTING": "chat.routing.channel_routing",
     },
-}
+ }
 
-#6379'redis://localhost:{$PORT}'("127.0.0.1", 6379)
+#6379'redis://localhost:{$PORT}'
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": [os.environ['REDIS_URL']],
-        "OPTIONS": "django-redis.client.DefaultClient"
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": [("127.0.0.1", 6379)],
+#         "OPTIONS": "django-redis.client.DefaultClient"
+#     }
+# }
 """
 Turn on for testing
 """
@@ -275,5 +276,7 @@ Turn on for testing
 #         "BACKEND": "channels.layers.InMemoryChannelLayer"
 #     }
 # }
+
+#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 django_heroku.settings(locals())
