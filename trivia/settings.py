@@ -265,7 +265,7 @@ CACHES = {
         "LOCATION": {
             "hosts": ['redis://localhost:{$PORT}'],
         },
-        "OPTIONS": "django-redis.client.DefaultClient"
+        # "OPTIONS": "django-redis.client.DefaultClient"
     }
 }
 """
