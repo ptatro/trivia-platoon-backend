@@ -18,19 +18,20 @@ from game.consumers import FooConsumer, EchoConsumer, GameInstanceConsumer
 import django
 from django.core.asgi import get_asgi_application
 
-django.setup()
+#django.setup()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "trivia.settings")
 
-application = get_asgi_application()
+django_asgi_app = get_asgi_application()
 
-# application = ProtocolTypeRouter({
-#     "websocket": JwtAuthMiddlewareStack(
-#         URLRouter([
-#             url(r"^user", FooConsumer.as_asgi()),
-#             url(r"^echo", EchoConsumer.as_asgi()),
-#             url(r"^gameinstance", GameInstanceConsumer.as_asgi())
-#         ])
-#     ),
-#  })
+application = ProtocolTypeRouter({
+    "http": django_asgi_app,
+    "websocket": JwtAuthMiddlewareStack(
+        URLRouter([
+            url(r"^user", FooConsumer.as_asgi()),
+            url(r"^echo", EchoConsumer.as_asgi()),
+            url(r"^gameinstance", GameInstanceConsumer.as_asgi())
+        ])
+    ),
+ })
 
