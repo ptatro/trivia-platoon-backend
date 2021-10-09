@@ -15,6 +15,10 @@ from django.conf.urls import url
 from .channelmiddleware import JwtAuthMiddlewareStack
 from game.consumers import FooConsumer, EchoConsumer, GameInstanceConsumer
 
+import django
+
+django.setup()
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "trivia.settings")
 
 application = ProtocolTypeRouter({
