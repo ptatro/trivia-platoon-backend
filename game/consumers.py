@@ -154,6 +154,13 @@ class GameInstanceConsumer(SyncConsumer):
             "text": "message received"
         })
 
+    def websocket_disconnect(self, event):
+        print(self.scope["query_string"])
+        print(self.scope["path"])
+        self.send({
+            "type": "websocket.disconnect",
+        })
+
 """
 2nd Example Test Consumer for Auth
 """

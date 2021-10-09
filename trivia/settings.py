@@ -21,6 +21,7 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -251,7 +252,7 @@ Turn this on for production
 #     "default": {
 #         "BACKEND": "channels_redis.core.RedisChannelLayer",
 #         "CONFIG": {
-#             "hosts": [("127.0.0.1", 6379)],
+#             "hosts": [("localhost", 6379)],
 #         },
 #         # "ROUTING": "chat.routing.channel_routing",
 #     },
