@@ -181,7 +181,11 @@ class GameInstanceConsumer(SyncConsumer):
                     gameinstance.save()
                     all_results = gameinstance.results.all()
                     for result in all_results:
-                        results_list.append(model_to_dict(result))
+                        result_dict = model_to_dict(result)
+                        username = CustomUser.objects.get(pk=result_dict["player"])
+                        result_dict["username"]=username.username
+                        results_list.append(result_dict)
+
                 else:
                     message_trigger = "waiting for other players"
         except Exception as e:
@@ -217,21 +221,13 @@ class ChatConsumer(SyncConsumer):
         prefix, slug = self.scope["path"].strip('/').split('/')
         # Get the game instance and player count using the slug
         gameinstance = GameInstance.objects.get(slug=slug)
-        # gameinstance.player.remove(player)
-        # playercount = len(gameinstance.player.all())
-        # lobby = f"{playercount} of {gameinstance.maxplayers}"
+
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(slug, 
             {
                 "type": "chat.message",
                 "text": {
                     "chat_message" : f'{player.username} has left chat', 
-                    # "status" : gameinstance.status,
-                    # "playercount" : playercount, 
-                    # "slug" : gameinstance.slug,
-                    # "game" : gameinstance.game.id,
-                    # "questiontimer" : gameinstance.questiontimer,
-                    # "lobby" : lobby
                     },
             })
         # self.send({
@@ -252,8 +248,6 @@ class ChatConsumer(SyncConsumer):
         # Get the game instance and player count using the slug
         gameinstance = GameInstance.objects.get(slug=slug)
         if (gameinstance.status == "lobby"):
-            #print("we are in the lobby")
-            # gameinstance.player.add(newplayer)
             connectionstatus = "connected"
         else: 
             #print("we are not in the lobby - the game is full")
@@ -266,16 +260,6 @@ class ChatConsumer(SyncConsumer):
                 "text": connectionstatus
             })
             return
-        # playercount = len(gameinstance.player.all())
-
-        # If the playercount equals max players tell client to start else tell client to wait
-        # Setting a variable to handle this message trigger within consumer and not model
-        # if (playercount == gameinstance.maxplayers):
-        #     lobby = "full"
-        #     gameinstance.status="full"
-        #     gameinstance.save()
-        # else:
-        #     lobby = f"{playercount} of {gameinstance.maxplayers}"
 
         channel_layer = get_channel_layer()
         async_to_sync(self.channel_layer.group_add)(slug, self.channel_name)
@@ -285,12 +269,6 @@ class ChatConsumer(SyncConsumer):
                 "type": "chat.message",
                 "text": {
                     "chat_message" : f'Welcome to chat {newplayer.username}',
-                    # "status" : gameinstance.status,
-                    # "playercount" : playercount, 
-                    # "slug" : gameinstance.slug,
-                    # "game" : gameinstance.game.id,
-                    # "questiontimer" : gameinstance.questiontimer,
-                    # "lobby" : lobby
                     },
             })
         self.send({
@@ -326,34 +304,6 @@ class ChatConsumer(SyncConsumer):
 
         print(messagebody["client_chat"])
         chat_message = messagebody["client_chat"]
-        # Handle Creator Start Message
-        # try:
-        #     if messagebody["creator_start"]:
-        #         message_trigger = "start"
-        #         gameinstance.status = "in_progress"
-        #         gameinstance.save()
-        # except Exception as e:
-        #     pass
-        # try:
-        #     if messagebody["score"]: 
-        #         # Handle Results Submitted
-        #         Result.objects.create(game=game, player=player, score=messagebody["score"], gameinstance=gameinstance)
-        #         resultcount = len(gameinstance.results.all())
-
-        #         # If the resultcount equals max players send all results back else return waiting on other players
-        #         # Setting a variable to handle this message trigger within consumer and not model
-                
-        #         if (resultcount == gameinstance.maxplayers):
-        #             message_trigger = "complete"
-        #             gameinstance.status = "done"
-        #             gameinstance.save()
-        #             all_results = gameinstance.results.all()
-        #             for result in all_results:
-        #                 results_list.append(model_to_dict(result))
-        #         else:
-        #             message_trigger = "waiting for other players"
-        # except Exception as e:
-        #     pass
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(slug, 
@@ -361,8 +311,7 @@ class ChatConsumer(SyncConsumer):
                 "type": "chat.message",
                 "text": {
                     "chat_message" : chat_message,
-                    # "message_trigger" : message_trigger,
-                    # "all_results" : results_list
+                    "username" : player.username,
                     },
             })
 
