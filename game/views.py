@@ -14,6 +14,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import GamesCreatorOnlyCanChange, QuestionsCreatorOnlyCanChange, AnswersCreatorOnlyCanChange, ResultsCreatorOnlyCanChange
 from rest_framework.response import Response
+from django.http import Http404
 
 
 class GamesViewSet(viewsets.ModelViewSet):
@@ -120,7 +121,7 @@ class GameInstanceSlugViewSet(viewsets.ModelViewSet):
             new_result['creator'] = gameinstance.creator.username
             return Response(new_result)
         except:
-            pass
+            raise Http404("Game Instance Does not Exist")
         
         
 
