@@ -124,7 +124,8 @@ class GameInstanceSerializer(ModelSerializer):
                 slug = Haikunator.haikunate()
                 if GameInstance.objects.filter(slug=slug).exists():
                     continue
-                new_gameinstance = GameInstance.objects.create(slug=slug,  **validated_data)
+                creatorObj = CustomUser.objects.get(pk=self.context["creator"])   
+                new_gameinstance = GameInstance.objects.create(slug=slug, creator=creatorObj, **validated_data)
                 # new_gameinstance.player.add(players_data[0])
                 # new_gameinstance.save()
 

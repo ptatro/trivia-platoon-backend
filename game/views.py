@@ -101,7 +101,19 @@ Multiplayer Addition
 
 class GameInstanceViewSet(viewsets.ModelViewSet):
     serializer_class = GameInstanceSerializer
-    queryset = GameInstance.objects.all()
+    #queryset = GameInstance.objects.all()
+
+#added all
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        try:
+            context["creator"] = self.request.data["creator"]
+        except Exception as e:
+            pass
+        return context
+
+    def get_queryset(self):
+        return GameInstance.objects.all()
 
 
 
