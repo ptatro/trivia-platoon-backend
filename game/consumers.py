@@ -175,7 +175,7 @@ class GameInstanceConsumer(SyncConsumer):
                 # If the resultcount equals max players send all results back else return waiting on other players
                 # Setting a variable to handle this message trigger within consumer and not model
                 
-                if (resultcount == gameinstance.maxplayers):
+                if (resultcount == len(gameinstance.player.all())):
                     message_trigger = "complete"
                     gameinstance.status = "done"
                     gameinstance.save()
