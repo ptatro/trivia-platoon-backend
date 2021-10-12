@@ -118,15 +118,19 @@ class GameInstanceSerializer(ModelSerializer):
     def create(self, validated_data):
 
         # Commented out adding the player on create due to adding players on connection in the consumer
-        #players_data = validated_data.pop("player")
+        players_data = validated_data.pop("player")
         new_gameinstance = None
         while not new_gameinstance:
             with transaction.atomic():
                 slug = Haikunator().haikunate()
+                #game_pk = self.context["game_pk"]
+                game_pk = 2
+                creatorObj = CustomUser.objects.get(pk=self.context["creator"])
                 if GameInstance.objects.filter(slug=slug).exists():
-                    continue
-                new_gameinstance = GameInstance.objects.create(slug=slug, **validated_data)
-                #new_gameinstance.player.add(players_data[0])
-                #new_gameinstance.save()
+                    new_gameinstance = GameInstance.objects.create(slug=slug, game=Game.objects.get(pk=game_pk), creator=creatorObj, **validated_data)           
+                new_gameinstance = GameInstance.objects.create(slug=slug, game=Game.objects.get(pk=game_pk), creator=creatorObj, **validated_data)
+                #new_gameinstance = GameInstance.objects.create(slug=slug, **validated_data)
+                new_gameinstance.player.set(players_data[0])
+                new_gameinstance.save()
 
         return new_gameinstance
