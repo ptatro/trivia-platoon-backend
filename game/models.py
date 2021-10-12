@@ -26,11 +26,17 @@ class Game(models.Model):
     class Meta:
         ordering = (-F("rating_total")/F("rating_count"),)
 
+    def __str__(self):
+        return f'{self.name} by {self.creator}'
+
 
 class Question(models.Model):
     questionText = models.TextField()
     type = models.CharField(max_length=255)
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="questions")
+
+    def __str__(self):
+        return f'ID {self.pk} for {self.game}'
 
 
 class Answer(models.Model):
@@ -39,6 +45,9 @@ class Answer(models.Model):
     )
     text = models.CharField(max_length=255)
     correct = models.BooleanField()
+
+    def __str__(self):
+        return f'{self.text} for {self.question}'
 
 class GameInstance(models.Model):
     
@@ -52,6 +61,9 @@ class GameInstance(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="gameinstances")
     questiontimer = models.IntegerField(default=15)
 
+    def __str__(self):
+        return f'{self.slug} of {self.game}'
+
 class Result(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="results")
     player = models.ForeignKey(
@@ -63,4 +75,7 @@ class Result(models.Model):
 
     class Meta:
         ordering = ("-score",)
+
+    def __str__(self):
+        return f'ID {self.pk} player {self.player} game {self.game}'
     
