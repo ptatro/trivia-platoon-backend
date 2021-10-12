@@ -1,5 +1,5 @@
 from accounts.serializers import CustomUserSerializer
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 from .models import Game, Result, Question, Answer, GameInstance
 from accounts.models import CustomUser
 from django.db import transaction
@@ -108,6 +108,7 @@ Multiplayer Addition
 
 class GameInstanceSerializer(ModelSerializer):
     creator = CustomUserSerializer(read_only=True)
+    #game = PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = GameInstance
@@ -116,21 +117,28 @@ class GameInstanceSerializer(ModelSerializer):
         extra_kwargs = {'player': {'required': False}}
 
     def create(self, validated_data):
+        game = PrimaryKeyRelatedField(many=True, read_only=True)
 
         # Commented out adding the player on create due to adding players on connection in the consumer
-        players_data = validated_data.pop("player")
+        #players_data = validated_data.pop("game")
+        player = validated_data.pop("player")
+        #game = validated_data.pop("creator")
         new_gameinstance = None
         while not new_gameinstance:
             with transaction.atomic():
                 slug = Haikunator().haikunate()
                 #game_pk = self.context["game_pk"]
-                game_pk = 2
+                game_pk = 3
                 creatorObj = CustomUser.objects.get(pk=self.context["creator"])
+                game=Game.objects.get(pk=game_pk)
                 if GameInstance.objects.filter(slug=slug).exists():
-                    new_gameinstance = GameInstance.objects.create(slug=slug, game=Game.objects.get(pk=game_pk), creator=creatorObj, **validated_data)           
-                new_gameinstance = GameInstance.objects.create(slug=slug, game=Game.objects.get(pk=game_pk), creator=creatorObj, **validated_data)
+                    #new_gameinstance = GameInstance.objects.create(slug=slug, game=Game.objects.get(pk=game_pk), creator=creatorObj, **validated_data)  
+                    continue         
+                new_gameinstance = GameInstance.objects.create(slug=slug, creator=creatorObj, **validated_data)
                 #new_gameinstance = GameInstance.objects.create(slug=slug, **validated_data)
-                new_gameinstance.player.set(players_data[0])
+                #print(players_data[0])
+                #new_gameinstance.player.set(players_data[0])
+                new_gameinstance.player.set(player)
                 new_gameinstance.save()
 
         return new_gameinstance
