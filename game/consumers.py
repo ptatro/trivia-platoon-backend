@@ -298,11 +298,9 @@ class ChatConsumer(SyncConsumer):
         player = CustomUser.objects.get(pk=playerID)
         prefix, slug = self.scope["path"].strip('/').split('/')
         messagebody = json.loads(event["text"])
-        # results_list = []
         gameinstance = GameInstance.objects.get(slug=slug)
         game = Game.objects.get(pk=gameinstance.game.id)
 
-        print(messagebody["client_chat"])
         chat_message = messagebody["client_chat"]
 
         channel_layer = get_channel_layer()
