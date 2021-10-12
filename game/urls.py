@@ -1,5 +1,5 @@
 from rest_framework_nested import routers
-from .views import GamesViewSet, QuestionsViewSet, ResultsViewSet, AnswersViewSet, GameInstanceViewSet
+from .views import GamesViewSet, QuestionsViewSet, ResultsViewSet, AnswersViewSet, GameInstanceViewSet, GameInstanceSlugViewSet
 from django.urls import include
 from django.conf.urls import url
 
@@ -26,5 +26,5 @@ urlpatterns = [
     url(r"^", include(question_router.urls)),
     url(r"^", include(answer_router.urls)),
     url(r"^", include(gameinstance_router.urls)),
-    url(r"^lobby/(?P<slug>[-\w]+)/$", GameInstanceViewSet.as_view({'get': 'retrieve'}, lookup_field='slug')),
+    url(r"^lobby/(?P<slug>[-\w]+)/$", GameInstanceSlugViewSet.as_view({'get': 'retrieve'}, lookup_field='slug')),
 ]
