@@ -101,9 +101,7 @@ Multiplayer Addition
 
 class GameInstanceViewSet(viewsets.ModelViewSet):
     serializer_class = GameInstanceSerializer
-    #queryset = GameInstance.objects.all()
 
-#added all
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # try:
@@ -111,7 +109,7 @@ class GameInstanceViewSet(viewsets.ModelViewSet):
         # except Exception as e:
         #     pass
         try:
-            context["player"] = self.request.data["creator"]
+            context["creator"] = self.request.data["creator"]
         except Exception as e:
             pass
         return context
