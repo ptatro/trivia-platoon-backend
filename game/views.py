@@ -106,8 +106,12 @@ class GameInstanceViewSet(viewsets.ModelViewSet):
 #added all
     def get_serializer_context(self):
         context = super().get_serializer_context()
+        # try:
+        #     context["game_pk"] = self.kwargs["game_pk"]
+        # except Exception as e:
+        #     pass
         try:
-            context["creator"] = self.request.data["creator"]
+            context["player"] = self.request.data["creator"]
         except Exception as e:
             pass
         return context
