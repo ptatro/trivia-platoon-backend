@@ -110,7 +110,8 @@ class GameInstanceViewSet(viewsets.ModelViewSet):
     queryset = GameInstance.objects.all()
 
 class GameInstanceSlugViewSet(viewsets.ModelViewSet):
-    
+    serializer_class = GameInstanceSerializer
+
     def retrieve(self, request, slug=None, *args, **kwargs):
         queryset = GameInstance.objects.all()
         gameinstance = get_object_or_404(queryset, slug=slug)
