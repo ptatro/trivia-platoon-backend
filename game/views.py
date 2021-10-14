@@ -1,13 +1,20 @@
-from .models import Game, Question, Result, Answer
+from django.db.models.query import QuerySet
+from rest_framework.generics import get_object_or_404
+from rest_framework.serializers import Serializer
+from accounts.models import CustomUser
+from .models import Game, Question, Result, Answer, GameInstance
 from .serializers import (
     GamesSerializer,
     QuestionsSerializer,
     ResultsSerializer,
     AnswersSerializer,
+    GameInstanceSerializer
 )
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import GamesCreatorOnlyCanChange, QuestionsCreatorOnlyCanChange, AnswersCreatorOnlyCanChange, ResultsCreatorOnlyCanChange
+from rest_framework.response import Response
+from django.http import Http404
 
 
 class GamesViewSet(viewsets.ModelViewSet):
@@ -93,3 +100,30 @@ class AnswersViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Answer.objects.filter(question=self.kwargs["question_pk"])
+
+'''
+Multiplayer Addition
+'''
+
+class GameInstanceViewSet(viewsets.ModelViewSet):
+    serializer_class = GameInstanceSerializer
+    queryset = GameInstance.objects.all()
+
+class GameInstanceSlugViewSet(viewsets.ModelViewSet):
+    serializer_class = GameInstanceSerializer
+
+    def retrieve(self, request, slug=None, *args, **kwargs):
+        queryset = GameInstance.objects.all()
+        gameinstance = get_object_or_404(queryset, slug=slug)
+        try:
+            new_result = {}
+            serializer = GameInstanceSerializer(gameinstance)
+            new_result.update(serializer.data)
+            new_result['creator'] = gameinstance.creator.username
+            return Response(new_result)
+        except:
+            raise Http404("Game Instance Does not Exist")
+        
+        
+
+        

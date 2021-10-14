@@ -2,6 +2,8 @@ from django.db import models
 from accounts.models import CustomUser
 import uuid
 from django.db.models import F
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 
 def get_file_path(instance, filename):
@@ -24,23 +26,17 @@ class Game(models.Model):
     class Meta:
         ordering = (-F("rating_total")/F("rating_count"),)
 
+    def __str__(self):
+        return f'{self.name} by {self.creator}'
+
 
 class Question(models.Model):
     questionText = models.TextField()
     type = models.CharField(max_length=255)
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="questions")
 
-
-class Result(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="results")
-    player = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name="results"
-    )
-    score = models.IntegerField(default=0)
-    rating = models.IntegerField(null=True, blank=True)
-
-    class Meta:
-        ordering = ("-score",)
+    def __str__(self):
+        return f'ID {self.pk} for {self.game}'
 
 
 class Answer(models.Model):
@@ -49,3 +45,37 @@ class Answer(models.Model):
     )
     text = models.CharField(max_length=255)
     correct = models.BooleanField()
+
+    def __str__(self):
+        return f'{self.text} for {self.question}'
+
+class GameInstance(models.Model):
+    
+    maxplayers = models.IntegerField(validators=[MinValueValidator(2), MaxValueValidator(10)])
+    status = models.CharField(max_length=25, default="lobby")
+    slug = models.SlugField(unique=True)
+    player = models.ManyToManyField(CustomUser, related_name="gameinstances")
+    creator = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="gamesinstances"
+    )
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="gameinstances")
+    questiontimer = models.IntegerField(default=15)
+
+    def __str__(self):
+        return f'{self.slug} of {self.game}'
+
+class Result(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="results")
+    player = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="results"
+    )
+    score = models.IntegerField(default=0)
+    rating = models.IntegerField(null=True, blank=True)
+    gameinstance = models.ForeignKey(GameInstance, on_delete=models.CASCADE, related_name="results", null=True, blank=True)
+
+    class Meta:
+        ordering = ("-score",)
+
+    def __str__(self):
+        return f'ID {self.pk} player {self.player} game {self.game}'
+    

@@ -21,6 +21,7 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -118,6 +119,7 @@ INSTALLED_APPS = [
     "accounts",
     "rest_framework_swagger",
     "storages",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -150,7 +152,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "trivia.wsgi.application"
-
+ASGI_APPLICATION = "trivia.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -240,6 +242,29 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
+}
+
+"""
+Turn this on for production
+"""
+
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("localhost", 6379)],
+#         },
+#         # "ROUTING": "chat.routing.channel_routing",
+#     },
+# }
+"""
+Turn on for testing
+"""
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }
 
 django_heroku.settings(locals())
